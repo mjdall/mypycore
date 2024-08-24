@@ -1,8 +1,8 @@
 import os
 import argparse
 import subprocess
-
 from pathlib import Path
+import pyperclip
 
 
 def scan_directory(
@@ -65,7 +65,7 @@ def generate_markdown(file_contents: dict, directory_structure: str) -> str:
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Generate a markdown summary of your codebase for your preferred ai assitant."
+        description="Generate a markdown summary of your codebase for your preferred AI assistant."
     )
     parser.add_argument(
         "directory", type=str, help="The path to the codebase directory to scan."
@@ -82,8 +82,7 @@ def main():
         "-o",
         "--output",
         type=str,
-        default="ai-summary.md",
-        help="The output markdown file name.",
+        help="The output markdown file name. If not provided, the output will be copied to the clipboard.",
     )
     parser.add_argument(
         "-i",
@@ -102,10 +101,13 @@ def main():
     directory_structure = get_directory_structure(directory_path)
     markdown = generate_markdown(file_contents, directory_structure)
 
-    with open(args.output, "w", encoding="utf-8") as md_file:
-        md_file.write(markdown)
-
-    print(f"Markdown summary generated at {args.output}")
+    if args.output:
+        with open(args.output, "w", encoding="utf-8") as md_file:
+            md_file.write(markdown)
+        print(f"Markdown summary generated at {args.output}")
+    else:
+        pyperclip.copy(markdown)
+        print("Markdown summary copied to clipboard.")
 
 
 if __name__ == "__main__":
