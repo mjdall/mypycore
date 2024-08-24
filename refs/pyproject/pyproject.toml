@@ -1,0 +1,28 @@
+[tool.poetry]
+name = "<project-name>"
+version = "0.1.0"
+description = "This should probably be a description of your project"
+authors = ["me <me@myemail.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+numpy = "2.1.0"
+pandas = "^2.2.1"
+matplotlib = "3.9.2"
+scipy = "^1.14.1"
+urllib3 = "^2.2.1"
+python-dotenv = "^1.0.1"
+plotly = "^5.20.0"
+fastapi = "^0.110.0"
+uvicorn = "^0.28.0"
+jupyter = "^1.0.0"
+ipykernel = "^6.29.3"
+ipython = "^8.22.2"
+nbconvert = "^7.16.2"
+
+[tool.poetry.group.dev.dependencies]
+black = "24.8.0"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
