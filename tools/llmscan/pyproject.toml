@@ -13,6 +13,12 @@ llmscan = "llmscan.main:main"
 [tool.poetry.dependencies]
 python = "^3.8"
 pyperclip = "^1.9.0"
+toml = "^0.10.2"
+
+[tool.llmscan]
+ignore_dirs = ["__pycache__", "node_modules"]
+ignore_re = ["ai-summary.md"]
+extensions = [".py", ".js", ".md", ".css"]
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

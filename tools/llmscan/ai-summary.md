@@ -16,35 +16,103 @@
 
 ```
 
+## README.md
+
+```md
+# llmscan
+
+`llmscan` is a Python script that generates a markdown summary of your codebase for use with your preffered AI assistant. It scans a directory, extracts file contents, and includes a directory structure overview.
+
+## Installation
+
+1. Clone the repo and navigate into it:
+   ```bash
+   git clone https://github.com/yourusername/llmscan.git
+   cd llmscan
+   ```
+2. Install dependencies:
+   ```bash
+   poetry install
+   ```
+
+## Usage
+
+Run `llmscan` with the path to your codebase:
+```bash
+llmscan path/to/your/codebase
+```
+This copies the markdown summary to your clipboard.
+
+To save the summary to a file:
+```bash
+llmscan path/to/your/codebase -o summary.md
+```
+
+To get help on additional parameters:
+```bash
+llmscan --help
+```
+
+## License
+
+MIT License.
+
+```
+
 ## src/llmscan/main.py
 
 ```py
 import os
+import re
 import argparse
 import subprocess
-
 from pathlib import Path
+import pyperclip
+import toml
+
+
+def load_config_from_pyproject(pyproject_path: Path) -> dict:
+    """
+    Loads configuration for llmscan from pyproject.toml.
+    
+    :param pyproject_path: Path to the pyproject.toml file.
+    :return: Dictionary with configuration settings.
+    """
+    with open(pyproject_path, "r", encoding="utf-8") as pyproject_file:
+        pyproject_data = toml.load(pyproject_file)
+        return pyproject_data.get("tool", {}).get("llmscan", {})
 
 
 def scan_directory(
-    directory: Path, extensions: list[str], ignore_folders: list[str]
+    directory: Path, extensions: list[str], ignore_dirs: list[str], ignore_re: list[str]
 ) -> dict:
     """
-    Scans the directory for files with specific extensions, ignoring certain folders.
+    Scans the directory for files with specific extensions, ignoring certain folders and files matching a regex.
 
     :param directory: The directory to scan.
     :param extensions: A list of file extensions to include (e.g., [".py", ".js"]).
-    :param ignore_folders: A list of folder names to ignore (e.g., ["__pycache__", "node_modules"]).
+    :param ignore_dirs: A list of folder names to ignore (e.g., ["__pycache__", "node_modules"]).
+    :param ignore_re: A regex pattern to ignore matching files and directories.
     :return: A dictionary where keys are relative file paths and values are file contents.
     """
     files_dict = {}
+    ignore_patterns = [re.compile(pattern) for pattern in ignore_re]
+    matches_a_regex = lambda x: any([p.match(x) for p in ignore_patterns])
+    
     for root, dirs, files in os.walk(directory):
         # Ignore specific folders
-        dirs[:] = [d for d in dirs if d not in ignore_folders and not d.startswith(".")]
+        dirs[:] = [d for d in dirs if d not in ignore_dirs and not d.startswith(".")]
+
+        # Apply regex pattern to directories
+        dirs[:] = [d for d in dirs if not matches_a_regex(d)]
 
         for file in files:
             if file.startswith("."):
                 continue
+
+            if matches_a_regex(file):
+                continue
+
             if any(file.endswith(ext) for ext in extensions):
                 file_path = Path(root) / file
                 with open(file_path, "r", encoding="utf-8") as f:
@@ -86,7 +154,7 @@ def generate_markdown(file_contents: dict, directory_structure: str) -> str:
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Generate a markdown summary of your codebase for your preferred ai assitant."
+        description="Generate a markdown summary of your codebase for your preferred AI assistant."
     )
     parser.add_argument(
         "directory", type=str, help="The path to the codebase directory to scan."
@@ -96,37 +164,58 @@ def main():
         "--extensions",
         type=str,
         nargs="+",
-        default=[".py", ".js"],
         help="File extensions to include (e.g., '.py', '.js').",
     )
     parser.add_argument(
         "-o",
         "--output",
         type=str,
-        default="ai-summary.md",
-        help="The output markdown file name.",
+        help="The output markdown file name. If not provided, the output will be copied to the clipboard.",
     )
     parser.add_argument(
-        "-i",
-        "--ignore",
+        "-id",
+        "--ignore-dirs",
         type=str,
         nargs="+",
-        default=["__pycache__", "node_modules"],
-        help="Folders to ignore (e.g., '__pycache__', 'node_modules').",
+        help="Directories to ignore (e.g., '__pycache__', 'node_modules').",
+    )
+    parser.add_argument(
+        "-ir",
+        "--ignore-re",
+        type=str,
+        help="Regex pattern to ignore matching files and directories.",
     )
 
     args = parser.parse_args()
 
-    directory_path = Path(args.directory)
+    # Load config from pyproject.toml if available
+    pyproject_path = Path(args.directory) / "pyproject.toml"
+    config = {}
+    if pyproject_path.exists():
+        config = load_config_from_pyproject(pyproject_path)
 
-    file_contents = scan_directory(directory_path, args.extensions, args.ignore)
+    # Override config with command-line arguments if provided
+    extensions = args.extensions if args.extensions else config.get("extensions", [".py", ".js"])
+    ignore_dirs = args.ignore_dirs if args.ignore_dirs else config.get("ignore_dirs", ["__pycache__", "node_modules"])
+    ignore_re = args.ignore_re if args.ignore_re else config.get("ignore_re", [])
+
+    directory_path = Path(args.directory)
+    
+    if not directory_path.exists() or not directory_path.is_dir():
+        print(f"Error: The directory {directory_path} does not exist or is not a valid directory.")
+        return
+
+    file_contents = scan_directory(directory_path, extensions, ignore_dirs, ignore_re)
     directory_structure = get_directory_structure(directory_path)
     markdown = generate_markdown(file_contents, directory_structure)
 
-    with open(args.output, "w", encoding="utf-8") as md_file:
-        md_file.write(markdown)
-
-    print(f"Markdown summary generated at {args.output}")
+    if args.output:
+        with open(args.output, "w", encoding="utf-8") as md_file:
+            md_file.write(markdown)
+        print(f"Markdown summary generated at {args.output}")
+    else:
+        pyperclip.copy(markdown)
+        print("Markdown summary copied to clipboard.")
 
 
 if __name__ == "__main__":
