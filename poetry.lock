@@ -2,13 +2,13 @@
 
 [[package]]
 name = "podman-compose"
-version = "1.2.0"
+version = "1.0.6"
 description = "A script to run docker-compose.yml using podman"
 optional = false
 python-versions = "*"
 files = [
-    {file = "podman_compose-1.2.0-py2.py3-none-any.whl", hash = "sha256:a78d0e5c83476ff36d4e5019a6e0e984133b4a416344904526ee05332734e32e"},
-    {file = "podman_compose-1.2.0.tar.gz", hash = "sha256:e47665546598a48d83d30ca2709a679412824bbe84b93f61779bc863e1a6f060"},
+    {file = "podman-compose-1.0.6.tar.gz", hash = "sha256:2db235049fca50a5a4ffd511a917808c960dacb8defd5481dd8b36a77d4da2e5"},
+    {file = "podman_compose-1.0.6-py2.py3-none-any.whl", hash = "sha256:48c92e6cdac1732422c6cfa803d8a905a61be4119dc0d41f9ed42c66826e9a78"},
 ]
 
 [package.dependencies]
@@ -16,7 +16,7 @@ python-dotenv = "*"
 pyyaml = "*"
 
 [package.extras]
-devel = ["coverage", "parameterized", "pre-commit", "ruff"]
+devel = ["black", "flake8", "pre-commit", "pylint"]
 
 [[package]]
 name = "python-dotenv"
@@ -97,4 +97,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
-content-hash = "430c9d352baf9b4ab6799debfee16652c970cb071ec7867667760118b470aaa1"
+content-hash = "18023cef95bf12f8aa2ae0a1e77aa6542bae6413130d3d7bfc3ba46430ae31fe"
