@@ -5,7 +5,7 @@ description = "A script to generate a markdown summary of a codebase to show to 
 authors = ["morgan <oss@morgandally.com>"]
 license = "MIT"
 readme = "README.md"
-packages = [{include = "llmscan", from = "src"}]
+packages = [{ include = "llmscan", from = "src" }]
 
 [tool.poetry.scripts]
 llmscan = "llmscan.main:main"

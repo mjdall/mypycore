@@ -1,0 +1,15 @@
+[tool.poetry]
+name = "mypycore"
+version = "0.1.0"
+description = "Pls ignore the conda environment sitting next to this"
+authors = ["morgan <oss@morgandally.com>"]
+license = "MIT"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+podman-compose = "^1.2.0"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
