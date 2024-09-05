@@ -1,0 +1,21 @@
+[tool.poetry]
+name = "dither"
+version = "0.1.0"
+description = "Dithering utils"
+authors = ["morgan <oss@morgandally.com>"]
+license = "MIT"
+readme = "README.md"
+packages = [{include = "dither", from = "src"}]
+
+[tool.poetry.scripts]
+dither = "dither.main:main"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+pillow = "^10.4.0"
+numpy = "^2.1.1"
+rich = "^13.8.0"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
